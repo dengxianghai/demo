@@ -153,7 +153,6 @@ public class ProductionSystemAnalysis {
         returnMap.put("APtf1",APtf1);
         returnMap.put("APtf2",APtf2);
         return returnMap;
-
     }
 
     /**
@@ -162,7 +161,7 @@ public class ProductionSystemAnalysis {
      * @param options
      */
     public static void  sensitivityAnalysis(GasData gasData,Integer options,boolean ){
-        K, i, j: integer;
+        Integer K, i, j;
 
 
         double Pr =gasData.getCurrentPr();
