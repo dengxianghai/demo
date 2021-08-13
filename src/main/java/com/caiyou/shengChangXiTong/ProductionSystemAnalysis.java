@@ -29,7 +29,7 @@ public class ProductionSystemAnalysis {
      * @param selectNode
      * @throws Exception
      */
-    public static void nodeAnalysis(GasData gasData, double ptf, boolean isSep, Integer selectNode, List<RecTube> recTubes) throws Exception {
+    public static Map<String,double[]> nodeAnalysis(GasData gasData, double ptf, boolean isSep, Integer selectNode, List<RecTube> recTubes) throws Exception {
         Integer i;
 //        Integer pointCount = 20;
         double[] APtf2 = new double[0], AQsc2, APwf2 = new double[0], AQsc1, APtf1= new double[0], APwf1= new double[0], APr2 = new double[0], APr1 = new double[0];//可能是公有的变量
@@ -152,13 +152,177 @@ public class ProductionSystemAnalysis {
         returnMap.put("APwf2",APwf2);
         returnMap.put("APtf1",APtf1);
         returnMap.put("APtf2",APtf2);
-
+        return returnMap;
 
     }
 
-
-    public static void  sensitivityAnalysis(GasData gasData,Integer options){
+    /**
+     * 敏感性分析
+     * @param gasData
+     * @param options
+     */
+    public static void  sensitivityAnalysis(GasData gasData,Integer options,boolean ){
         K, i, j: integer;
+
+
+        double Pr =gasData.getCurrentPr();
+        if RzCheckSep.Checked = False then
+                begin
+        Ptf = StrtoFloatDef(TextJKYL.Text, 0);
+        if Ptf < 0 then
+                begin
+        ShowMsg('请输入井口压力！');
+        exit
+                end;
+        end;
+        Fuzhi();//本文中
+        BubbleSort(Data, 0, Length(Data));//排序算法，在YDCommon中
+        K = Length(Data);
+        if K <= 0 then
+                begin
+        ShowMsg('请输入数值!');
+        Abort;
+        end;
+        for i = 0 to K - 1 do
+            begin
+        if Data[i] <= 0 then
+                begin
+        ShowMsg('请大于零的数值!');
+        Abort;
+        end;
+        end;
+        setLength(Apwf1N, K);
+        SetLength(AQsc1N, K);
+        setLength(Apwf2N, K);
+        SetLength(AQsc2N, K);
+
+        case CBJD.ItemIndex of
+        0: begin //井口位置
+        SetLength(APtf1N, K);//APtf1N是 AADouble类型;
+        SetLength(APtf2N, K);
+        if RbJKLY.Checked then
+        begin
+        for j = 0 to K - 1 do
+            begin
+        SetLength(APtf2N[j], NDianShu + 1);
+        for i = 0 to NDianShu do
+            begin
+        APtf2N[j][i] = Data[j];
+        end;
+        end;
+        for i = 0 to K - 1 do
+            begin
+        CalcArray1Pwf(Pr, AQsc2N[i], APwf2N[i]);
+        CalcArray2Ptf(1, APwf2N[i], 0, AQsc1N[i], APtf1N[i]);
+        end;
+        end
+        else if RbPr.Checked then //地层压力
+        begin
+        for j = 0 to K - 1 do
+            begin
+        SetLength(APtf1N[j], NDianShu + 1);
+        for i = 0 to NDianShu do
+            begin
+        APtf1N[j][i] = StrtoFloatDef(TextJKYL.Text, 0);
+        end;
+        end;
+        for i = 0 to K - 1 do
+            begin
+        CalcArray1Pwf(Data[i], AQsc2N[i], APwf2N[i]);
+        CalcArray2Ptf(1, APwf2N[i], 0, AQsc1N[i], APtf2N[i]);
+        end;
+        end
+        else if RbYGZJ.Checked then
+        begin
+        //油管直径敏感性分析时，分有无分离器的情况
+        if RzCheckSep.Checked = False then //无分离器，井口直线
+                begin
+        for j = 0 to K - 1 do
+            begin
+        SetLength(APtf1N[j], NDianShu + 1);
+        for i = 0 to NDianShu do
+            begin
+        APtf1N[j][i] = Ptf;
+        end;
+        end;
+        for i = 0 to K - 1 do
+            begin
+        CalcArray1Pwf(Pr, AQsc1N[i], APwf2N[i]);
+        CalcArray2Ptf(2, APwf2N[i], Data[i], AQsc2N[i], APtf2N[i]);
+        end;
+        end
+          else
+        begin //有分离器，井口流压曲线
+        for j = 0 to K - 1 do
+            begin
+        SetLength(APtf1N[j], NDianShu + 1);
+        CalArray1SepPr(AQsc1N[j], APtf1N[j]);
+        end;
+        for i = 0 to K - 1 do
+            begin
+        CalcArray1Pwf(Pr, AQsc1N[i], APwf2N[i]);
+        CalcArray2Ptf(2, APwf2N[i], Data[i], AQsc2N[i], APtf2N[i]);
+        end;
+        end;
+        end;
+        end;
+        1:
+        begin //井底位置
+        if RbJKLY.Checked then
+        begin
+        for i = 0 to K - 1 do
+            begin
+        CalcArray1Pwf(Pr, AQsc1N[i], APwf2N[i]);
+        CalcArray2Pwf(1, Data[i], 0, AQsc1N[i], APwf1N[i]);
+        end;
+        end
+        else if RbPr.Checked then //地层压力
+        begin
+        for i = 0 to K - 1 do
+            begin
+        CalcArray1Pwf(Data[i], AQsc1N[i], APwf2N[i]);
+        CalcArray2Pwf(1, StrtoFloatDef(TextJKYL.Text, 0), 0, AQsc1N[i], APwf1N[i]);
+        end;
+        end
+        else if RbYGZJ.Checked then
+        begin
+        for i = 0 to K - 1 do
+            begin
+        CalcArray1Pwf(Pr, AQsc1N[i], APwf2N[i]);
+        CalcArray2Pwf(2, 0, Data[i], AQsc1N[i], APwf1N[i]);
+        end;
+        end;
+        end;
+        2:
+        begin //地层位置
+        SetLength(APr1N, K);
+        SetLength(APr2N, K);
+        for j = 0 to K - 1 do
+            begin
+        SetLength(APr2N[j], NDianShu + 1);
+        for i = 0 to NDianShu do
+            begin
+        Apr2N[j][i] = Pr;
+        end;
+        end;
+        if RbJKLY.Checked then
+        begin
+        for i = 0 to k - 1 do
+            begin
+        CalcArray2Pwf(1, Data[i], 0, AQsc1N[i], APwf1N[i]);
+        CalcArray1Pr(APwf1N[i], AQsc2N[i], APr1N[i]);
+        end;
+        end else if RbYGZJ.Checked then
+        begin
+        for i = 0 to K - 1 do
+            begin
+        CalcArray2Pwf(2, 0, Data[i], AQsc1N[i], APwf1N[i]);
+        CalcArray1Pr(APwf1N[i], AQsc2N[i], APr1N[i]);
+        end;
+        end;
+        end;
+        end;
+        Showchart2;
 
     }
 
