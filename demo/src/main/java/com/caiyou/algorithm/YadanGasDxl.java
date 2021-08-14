@@ -236,7 +236,7 @@ public class YadanGasDxl {
                         Pm = PL * HL + Pg * (1 - HL); //混合物密度
                     } else {
                         //griffith方法计算持液率HL和摩阻系数fm和混合物密度Pm
-                        Hg = 0.5 * (1 + Vm / 0.244 - Math.pow(Math.pow(1 + Vm / 0.244,2) - 4 * Vsg / 0.244,2)); //Hg含气率
+                        Hg = 0.5 * (1 + Vm / 0.244 - Math.sqrt(Math.pow(1 + Vm / 0.244,2) - 4 * Vsg / 0.244)); //Hg含气率
                         HL = 1 - Hg; //持液率HL
                         Pg = 3484.4 * Rg * Pav / (Z * Tav); //在给定温度和压力下天然气的密度，kg/m3
                         Mg = Rg * 28.97; //天然气平均分子量，kg/kmol;
@@ -287,10 +287,10 @@ public class YadanGasDxl {
                         break;
                     } else {
                         P2 = P2c;
-                        Ncount++;
-                        if (Ncount > 500) {
-                            break;
-                        }
+                    }
+                    Ncount++;
+                    if (Ncount > 500) {
+                        break;
                     }
                 }
 

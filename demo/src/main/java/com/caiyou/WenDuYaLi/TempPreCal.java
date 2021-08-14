@@ -64,7 +64,7 @@ public class TempPreCal {
 
         DXLCalRequest dxlCalRequest = new DXLCalRequest(list, DxlMethod, Direct, gasData.getSCFS(), Step,
                 gasData.getYLJZXS(), WGR, OGR, gasData.getRg(), gasData.getRo(), gasData.getRw(), gasData.getDwtd(),
-                H, Qg, gasData.getPstart(), TStart, HStart, Hend, gasData.getTpc(), gasData.getPpc());
+                H, Qg, PStart, TStart, HStart, Hend, gasData.getTpc(), gasData.getPpc());
 
         DXLCalResponse dxlCalResponse = UnitGasFun.DXLCal(dxlCalRequest);
         LinkedList<VDxlResult> vDxlResults = dxlCalResponse.getvDxlResults();

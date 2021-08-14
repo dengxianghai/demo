@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.transform.Result;
+import java.math.BigDecimal;
 import java.util.*;
 
 public class UnitGasFun {
@@ -129,8 +130,8 @@ public class UnitGasFun {
             YDGasDxlRequest ydGasDxlRequest = new YDGasDxlRequest(Method, Fx, Deh1, PressJZ, Dt, WGR, OGR, Rg, Ro, Rw, Wm, H,
                     Qg, pP1, TT1, HH1, Angle, Tpc, Ppc, e);
             YDGasDxlResponse ydGasDxlResponse = YadanGasDxl.YDGasDxl(ydGasDxlRequest);
-            pP2 = ydGasDxlResponse.getP2();
-            TT2 = ydGasDxlResponse.getT2();
+            pP2 = ydGasDxlResponse.getP2();//keepDecimals(ydGasDxlResponse.getP2(),2);
+            TT2 = ydGasDxlResponse.getT2();//keepDecimals(ydGasDxlResponse.getT2(),2);
             HH2 = ydGasDxlResponse.getH2();
             Vsl = ydGasDxlResponse.getVsl();
             Vsg = ydGasDxlResponse.getVsg();
@@ -159,28 +160,38 @@ public class UnitGasFun {
                 j = j + 1;
             }
 
-            if ((Fx == -1) && (HH2 - Deh1 <= 0)) {
-                HH2 = 0;
-            }
-            VDxlResult vDxlResult = new VDxlResult();
-            vDxlResult.setDepth(HH2);//井深
-            vDxlResult.setPressure(pP2);//压力
-            vDxlResult.setTemperature(TT2 - P_Ntemp);//温度
-            vDxlResult.setLiquidFlowRate(Vsl);//液体流速
-            vDxlResult.setGasFlowRate(Vsg);//气体流速
-            vDxlResult.setLiquidHoldupRate(HL);//持液率
-            vDxlResult.setGasCompressibility(Z);//气体压缩系数
-            vDxlResult.setFlow(Flow);//流态
-            vDxlResults.add(vDxlResult);
-
-            Result = 0;
         }
+        if ((Fx == -1) && (HH2 - Deh1 <= 0)) {
+            HH2 = 0;
+        }
+        VDxlResult vDxlResult = new VDxlResult();
+        vDxlResult.setDepth(HH2);//井深
+        vDxlResult.setPressure(pP2);//压力
+        vDxlResult.setTemperature(TT2 - P_Ntemp);//温度
+        vDxlResult.setLiquidFlowRate(Vsl);//液体流速
+        vDxlResult.setGasFlowRate(Vsg);//气体流速
+        vDxlResult.setLiquidHoldupRate(HL);//持液率
+        vDxlResult.setGasCompressibility(Z);//气体压缩系数
+        vDxlResult.setFlow(Flow);//流态
+        vDxlResults.add(vDxlResult);
 
         DXLCalResponse response = new DXLCalResponse();
         response.setvDxlResults(vDxlResults);
         return response;
     }
 
+    /**
+     * double数字根据需求进行保留位数的计算
+     * @param f
+     * @param number
+     * @return
+     */
+    public static double keepDecimals(double f,int number){
+
+        BigDecimal b   =   new   BigDecimal(f);
+        double   f1   =   b.setScale(number,   BigDecimal.ROUND_HALF_UP).doubleValue();
+        return f1;
+    }
 
     public static Map GetDt(List<RecTube> recTubes, double H, Integer SCFS) {
         double result = 0;
